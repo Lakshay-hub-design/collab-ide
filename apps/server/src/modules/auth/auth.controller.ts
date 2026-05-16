@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { loginUser, registerUser } from "./auth.service";
+import { loginUser, refreshAccessToken, registerUser } from "./auth.service";
 
 interface RegisterBody {
     username: string
@@ -69,5 +69,48 @@ export const getMe = async (
   res.status(200).json({
     success: true,
     user: req.user,
+  })
+}
+
+export const refresh = async (
+    req: Request,
+    res: Response
+) => {
+    try {
+        const refreshToken = req.cookies.refreshToken
+
+        if(!refreshToken){
+            return res.status(401).json({
+                success: false,
+                message: "Refresh token missing"
+            })
+        }
+
+        const accessToken = await refreshAccessToken(refreshToken)
+        
+        res.status(200).json({
+            success: true,
+            accessToken,
+        })
+    } catch (error) {
+        res.status(401).json({
+            success: false,
+            message:
+                error instanceof Error
+                ? error.message
+                : "Unauthorized",
+        })
+    }
+}
+
+export const logout = async (
+  _req: Request,
+  res: Response
+) => {
+  res.clearCookie("refreshToken")
+
+  res.status(200).json({
+    success: true,
+    message: "Logged out",
   })
 }

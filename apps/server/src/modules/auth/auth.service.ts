@@ -1,5 +1,6 @@
 import User from "./user.model";
 import { generateAccessToken, generateRefreshToken } from "../../utils/token";
+import jwt from "jsonwebtoken"
 
 export const registerUser = async (
     username: string,
@@ -59,5 +60,27 @@ export const loginUser = async (
         },
         accessToken,
         refreshToken
+    }
+}
+
+export const refreshAccessToken = async (
+    refreshToken: string
+) => {
+    try {
+        const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET as string) as {
+            userId: string
+        }
+
+        const user = await User.findById(decoded.userId)
+
+        if(!user){
+            throw new Error("User not found")
+        }
+
+        const accessToken = generateAccessToken(user._id.toString())
+
+        return accessToken
+    } catch (error) {
+        throw new Error("Invalid refresh token")
     }
 }
