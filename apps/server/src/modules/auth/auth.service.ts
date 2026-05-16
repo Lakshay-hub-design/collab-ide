@@ -22,8 +22,42 @@ export const registerUser = async (
     const refreshToken = generateRefreshToken(user._id.toString())
 
     return { 
-        user, 
+        user : {
+            userId: user._id,
+            username: user.username,
+            email: user.email
+        }, 
         accessToken, 
         refreshToken 
     }        
+}
+
+export const loginUser = async (
+    email: string,
+    password: string
+) => {
+    const user = await User.findOne({ email, }).select("+password")
+
+    if(!user){
+        throw new Error('Invalid Credentials')
+    }
+
+    const isPasswordValid = user.comparePassword(password)
+
+    if(!isPasswordValid){
+        throw new Error('Invalid Credentials')
+    }
+
+    const accessToken = generateAccessToken(user._id.toString())
+    const refreshToken = generateRefreshToken(user._id.toString())
+
+    return {
+        user: {
+            userId: user._id,
+            username: user.username,
+            email: user.email
+        },
+        accessToken,
+        refreshToken
+    }
 }
