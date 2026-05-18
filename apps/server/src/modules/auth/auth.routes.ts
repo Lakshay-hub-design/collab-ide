@@ -13,6 +13,6 @@ router.get("/me", protect, getMe)
 
 router.post("/refresh", refresh)
 
-router.post("logout", logout)
+router.post("/logout", logout)
 
 export default router
