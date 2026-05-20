@@ -19,9 +19,9 @@ export const handleRoomJoin = (
         rooms.set(roomId, room)
     }
 
-    const existingUser = room.users.find((user) => {
+    const existingUser = room.users.find((user) => 
         user.userId === socket.user?._id.toString()
-    })
+    )
 
     if(!existingUser){
         room.users.push({
@@ -45,11 +45,8 @@ export const handleRoomJoin = (
         "room:users",
         room.users
     )
+    console.log("JOIN EVENT", roomId, socket.id)
 
-    console.log(
-        `${socket.user?.username}
-            joined ${roomId}`
-    )
 }
 
 export const handleLeaveRoom = (
@@ -71,7 +68,7 @@ export const handleLeaveRoom = (
         }
     )
 
-    socket.emit(
+    socket.to(roomId).emit(
         "room:users",
         room.users
     )
@@ -79,6 +76,43 @@ export const handleLeaveRoom = (
     if(room.users.length === 0){
         rooms.delete(roomId)
     }
+    console.log("LEAVE EVENT", roomId, socket.id)
 
-    console.log(`${socket.user?.username} left ${roomId}`)
 }
+
+export const handleDisconnect =
+  (
+    socket: AuthenticatedSocket
+  ) => {
+    rooms.forEach((room, roomId) => {
+      const existingUser =
+        room.users.find(
+          (user) =>
+            user.socketId === socket.id
+        )
+
+      if (!existingUser) return
+
+      room.users =
+        room.users.filter(
+          (user) =>
+            user.socketId !== socket.id
+        )
+
+      socket.to(roomId).emit(
+        "user:left",
+        {
+          userId:
+            existingUser.userId,
+        }
+      )
+
+      socket.to(roomId).emit( "room:users", room.users )
+
+      if ( room.users.length === 0 ) {
+        rooms.delete(roomId)
+      }
+
+      console.log("DISCONNECT", socket.id)
+    })
+  }

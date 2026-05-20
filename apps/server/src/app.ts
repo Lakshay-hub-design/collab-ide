@@ -1,11 +1,13 @@
 import express from 'express'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
+import morgan from 'morgan'
 
 import authRoutes from './modules/auth/auth.routes'
 
 const app = express()
 
+app.use(morgan('dev'))
 app.use(cors({
     origin: 'http://localhost:5173',
     credentials: true,
