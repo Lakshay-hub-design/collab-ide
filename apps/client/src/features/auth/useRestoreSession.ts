@@ -1,28 +1,25 @@
-import { useAuthStore } from "@/shared/store/authStore"
-import { getCurrentUser, refreshToken } from "./auth.api"
 import { useEffect } from "react"
+import { getCurrentUser, refreshToken } from "./auth.api"
+import { useAuthStore } from "@/shared/store/authStore"
+import { socket } from "@/shared/lib/socket"
 
 export const useRestoreSession = () => {
-    const setAuth = useAuthStore(
-        (state) => state.setAuth
-    )
-
     useEffect(() => {
-        const restoreSession = async () => {
+        const restore = async () => {
             try {
-                const refreshResponse = await refreshToken()
+                const { accessToken } = await refreshToken()
+                const { user } = await getCurrentUser(accessToken)
 
-                const accessToken = refreshResponse.accessToken
+                useAuthStore.getState().setAuth(user, accessToken)
 
-                const userResponse = await getCurrentUser(accessToken)
-
-                setAuth(userResponse.user, accessToken)
-            } catch (error) {
-                console.log('No active session')
+                socket.auth = { token: accessToken }
+            } catch {
+                console.log("No active session")
+            } finally{
+                useAuthStore.getState().setRestoring(false)
             }
         }
 
-        restoreSession()
-    }, [setAuth])
-    
+        restore()
+    }, [])
 }

@@ -1,6 +1,7 @@
 import { AuthenticatedSocket } from "../types/socket/socket";
 
 import { rooms } from "./roomStore";
+import { Server } from "socket.io";
 
 export const handleRoomJoin = (
     socket: AuthenticatedSocket,
@@ -13,7 +14,8 @@ export const handleRoomJoin = (
     if(!room){
         room = {
             roomId,
-            users: []
+            users: [],
+            code: ""
         }
 
         rooms.set(roomId, room)
@@ -41,7 +43,9 @@ export const handleRoomJoin = (
         }
     )
 
-    socket.emit(
+    socket.emit("code:update", room.code)
+
+    socket.to(roomId).emit(
         "room:users",
         room.users
     )

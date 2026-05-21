@@ -3,7 +3,9 @@ import { Server } from 'socket.io'
 
 import { socketAuthMiddleware } from './socketAuth'
 import { AuthenticatedSocket } from '../types/socket/socket'
-import { handleLeaveRoom, handleRoomJoin } from './roomHandlers'
+import { handleDisconnect, handleLeaveRoom, handleRoomJoin } from './roomHandlers'
+import { handleCodeChange } from './codeHandlers'
+import { handleCursorMove } from './cursorHandlers'
 
 export const initilizeSocket = (
     server: http.Server
@@ -28,8 +30,20 @@ export const initilizeSocket = (
             handleLeaveRoom(socket, roomId)
         })
         
-        socket.on('disconnect', () => {
-            console.log(`User disconnected: ${socket.user?.username}`);
+        socket.on("disconnect", () => {
+            handleDisconnect(socket)
+
+            console.log(
+                `User disconnected: ${socket.user?.username}`
+            )
+        })
+
+        socket.on("code:change", ({roomId, code}) => {
+            handleCodeChange(socket, roomId, code)
+        })
+
+        socket.on("cursor:move", ({roomId, position}) => {
+            handleCursorMove(socket, roomId, position)
         })
     })
 

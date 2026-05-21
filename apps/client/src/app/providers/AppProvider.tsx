@@ -1,15 +1,14 @@
+import SocketProvider from "./SocketProvider"
 import { useRestoreSession } from "@/features/auth/useRestoreSession"
 
-interface Props {
-  children: React.ReactNode
-}
+function AppProvider({ children }: { children: React.ReactNode }) {
+    useRestoreSession()
 
-function AppProvider({
-  children,
-}: Props) {
-  useRestoreSession()
-
-  return <>{children}</>
+    return (
+        <SocketProvider>
+            {children}
+        </SocketProvider>
+    )
 }
 
 export default AppProvider

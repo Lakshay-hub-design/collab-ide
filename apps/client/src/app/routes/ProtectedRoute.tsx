@@ -11,6 +11,14 @@ const ProtectedRoute = ({children}: Props) => {
         (state) => state.accessToken
     )
 
+    const isRestoring = useAuthStore(
+        (state) => state.isRestoring
+    )
+
+    if(isRestoring){
+        return <div>Loading...</div>
+    }
+
     if(!accessToken){
         return <Navigate to='/' replace />
     }

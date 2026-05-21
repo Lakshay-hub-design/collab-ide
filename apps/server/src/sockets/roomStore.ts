@@ -7,6 +7,7 @@ interface RoomUser{
 interface Room{
     roomId: string
     users: RoomUser[]
+    code: string
 }
 
 export const rooms = new Map<string, Room>()

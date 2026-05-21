@@ -1,9 +1,9 @@
 import { Route, Routes } from "react-router-dom"
 import ProtectedRoute from "./ProtectedRoute"
 import DashboardPage from "@/pages/DashboardPage"
-import SocketTestPage from "@/pages/SocketTestPage"
 import LoginPage from "@/pages/LoginPage"
 import SignupPage from "@/pages/SignupPage"
+import RoomPage from "@/pages/RoomPage"
 import Home from "@/pages/Home"
 
 const AppRoutes = () => {
@@ -30,9 +30,9 @@ const AppRoutes = () => {
           }
         />
 
-        <Route 
-          path="/socket"
-          element={<SocketTestPage />}
+        <Route
+          path="/room"
+          element={<RoomPage />}
         />
     </Routes>
   )
