@@ -6,6 +6,8 @@ interface CursorUser {
 
   lineNumber: number;
   column: number;
+
+  color: string
 }
 
 interface CursorState {
