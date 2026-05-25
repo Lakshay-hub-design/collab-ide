@@ -1,11 +1,17 @@
-function App() {
-  return (
-    <div className="min-h-screen bg-black text-white flex items-center justify-center">
-      <h1 className="text-4xl font-bold">
-        Collab IDE
-      </h1>
-    </div>
-  )
-}
+import { useKeyboardShortcuts } from "./shared/hooks/useKeyboardShortcuts";
+import EditorLayout from "./shared/layouts/EditorLayout";
+import { useEffect } from "react";
 
-export default App
+import { useSettingsStore } from "./shared/store/settingsStore";
+
+export default function App() {
+  const { theme } = useSettingsStore();
+  useEffect(() => {
+    document.documentElement.classList.toggle(
+      "dark",
+      theme === "dark"
+    );
+  }, [theme]);
+  useKeyboardShortcuts()
+  return <EditorLayout />;
+}
