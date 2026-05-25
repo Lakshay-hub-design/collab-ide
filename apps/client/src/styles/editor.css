@@ -1,0 +1,24 @@
+.remote-cursor {
+  border-left: 3px solid red;
+}
+
+.remote-cursor-label::after {
+  content: "Remote User";
+
+  position: absolute;
+
+  top: -20px;
+  left: 0;
+
+  background: red;
+
+  color: white;
+
+  font-size: 12px;
+
+  padding: 2px 6px;
+
+  border-radius: 4px;
+
+  white-space: nowrap;
+}

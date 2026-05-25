@@ -1,6 +1,6 @@
 export default function StatusBar() {
   return (
-    <div className="h-6 bg-[#1f6feb] flex items-center justify-between px-3 text-xs text-white shadow-[0_-1px_0_#30363d]">
+    <div className="h-6 bg-[var(--accent)] flex items-center justify-between px-3 text-xs text-white shadow-[0_-1px_0_#30363d]">
 
       <div className="flex items-center gap-4">
         <span>main</span>

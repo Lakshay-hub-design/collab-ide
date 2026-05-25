@@ -20,7 +20,7 @@ export default function EditorLayout() {
     terminalOpen,
   } = useUIStore();
   return (
-    <div className="h-screen w-screen overflow-hidden bg-[#0d1117] text-white flex flex-col">
+    <div className="h-screen w-screen overflow-hidden bg-[--bg)] text-white flex flex-col">
 
       {/* TOPBAR */}
       <TopBar />

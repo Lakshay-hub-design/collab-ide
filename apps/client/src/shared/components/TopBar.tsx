@@ -3,6 +3,7 @@ import { Play, Bug, Share2, Settings } from "lucide-react";
 import { useTerminalStore } from "../store/terminalStore";
 import { runCode } from "../services/runCode";
 
+
 export default function TopBar() {
 
   const { files, activeFileId } = useEditorStore();
@@ -13,7 +14,7 @@ export default function TopBar() {
   );
 
   const {
-    setOutput,
+    addLine,
     setIsRunning,
     isRunning,
 } = useTerminalStore();
@@ -24,24 +25,46 @@ async function handleRunCode() {
   try {
     setIsRunning(true);
 
-    setOutput("Running...\n");
+    addLine({
+      id: crypto.randomUUID(),
+
+      type: "command",
+
+      text: `run ${activeFile.name}`,
+    });
 
     const result = await runCode({
       code: activeFile.content,
+
       language: activeFile.language,
     });
 
-    setOutput(result.output);
+    addLine({
+      id: crypto.randomUUID(),
+
+      type: "output",
+
+      text: result.output,
+    });
+
   } catch (error) {
-    console.log(error)
-    setOutput("Execution failed");
+    console.log(error);
+
+    addLine({
+      id: crypto.randomUUID(),
+
+      type: "error",
+
+      text: "Execution failed",
+    });
+
   } finally {
     setIsRunning(false);
   }
 }
 
   return (
-    <div className="h-12 border-b border-[#30363d] bg-[#171C23] flex items-center justify-between px-4">
+    <div className="h-12 border-b border-[#30363d] bg-[var(--panel)] flex items-center justify-between px-4">
 
       {/* LEFT */}
       <div className="flex items-center gap-8">
