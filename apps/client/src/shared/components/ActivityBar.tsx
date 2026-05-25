@@ -1,8 +1,13 @@
-import { Files, Search, GitBranch, PlaySquare, Blocks } from "lucide-react";
+import { Files, Search, GitBranch, PlaySquare, Blocks, Settings } from "lucide-react";
+import { useState } from "react";
+
+import SettingsModal from "@/shared/components/SettingsModal";
 
 export default function ActivityBar() {
+  const [settingsOpen, setSettingsOpen] = useState(false);
   return (
-    <div className="w-14 bg-[#171C23] border-r border-[#30363d] flex flex-col items-center py-3 gap-2">
+    <div className="w-14 bg-[var(--sidebar)] border-r border-[#30363d] flex flex-col justify-between">
+      <div className="flex flex-col py-3 gap-2">
       <button
         className="
         relative
@@ -63,6 +68,31 @@ export default function ActivityBar() {
       >
         <Blocks size={24} />
       </button>
+      </div>
+      <div>
+        <button
+          onClick={() =>
+            setSettingsOpen(true)
+          }
+          className="
+            w-full h-12
+            flex items-center justify-center
+            text-gray-500
+            hover:text-white
+            transition-colors mb-3
+          "
+        >
+          <Settings size={24} />
+        </button>
+      </div>
+      
+
+      <SettingsModal
+        open={settingsOpen}
+        onClose={() =>
+          setSettingsOpen(false)
+        }
+      />
     </div>
   );
 }

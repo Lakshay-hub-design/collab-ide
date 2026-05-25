@@ -7,6 +7,8 @@ import {
   findFileById,
 } from "@/features/editor/editorStore";
 
+import { useSettingsStore } from "@/shared/store/settingsStore";
+
 export default function EditorArea() {
   const {
     files,
@@ -16,6 +18,13 @@ export default function EditorArea() {
     updateFileContent,
     closeTab,
   } = useEditorStore();
+
+  const {
+    theme,
+    fontSize,
+    minimap,
+    wordWrap,
+  } = useSettingsStore();
 
   // FIND ACTIV FILE
   const activeFile = findFileById(
@@ -29,10 +38,10 @@ export default function EditorArea() {
     .filter(Boolean);
 
   return (
-    <div className="flex-1 h-full bg-[#0d1117] flex flex-col overflow-hidden">
+    <div className="flex-1 h-full flex flex-col bg-[var(--sidebar)] overflow-hidden">
 
       {/* TABS */}
-      <div className="h-10 border-b border-[#30363d] bg-[#171C23] flex items-center overflow-x-auto">
+      <div className="h-10 border-b border-[#30363d]  flex items-center overflow-x-auto">
 
         {openedFiles.map((file) => (
           <button
@@ -78,17 +87,19 @@ export default function EditorArea() {
         {activeFile && (
           <Editor
             height="100%"
-            theme="customTheme"
+            theme= {
+              theme === "dark" ? "customTheme" : "light"
+            }
             beforeMount={(monaco) => {
-        monaco.editor.defineTheme("customTheme", {
-          base: "vs-dark",
-          inherit: true,
-          rules: [],
-          colors: {
-            "editor.background": "#0F141B",
-          },
-        })
-      }}
+              monaco.editor.defineTheme("customTheme", {
+                base: "vs-dark",
+                inherit: true,
+                rules: [],
+                colors: {
+                  "editor.background": "#0F141B",
+                },
+              })
+            }}
             language={activeFile.language}
             value={activeFile.content}
             onChange={(value) =>
@@ -98,10 +109,10 @@ export default function EditorArea() {
               )
             }
             options={{
-              fontSize: 14,
+              fontSize: fontSize,
 
               minimap: {
-                enabled: false,
+                enabled: minimap,
               },
 
               smoothScrolling: true,
@@ -110,7 +121,7 @@ export default function EditorArea() {
                 top: 16,
               },
 
-              wordWrap: "on",
+              wordWrap: wordWrap ? "on" : "off",
 
               fontFamily:
                 "'JetBrains Mono', monospace",
