@@ -1,10 +1,10 @@
-import TopBar from "../components/TopBar";
 import ActivityBar from "../components/ActivityBar";
 import ExplorerPanel from "../components/ExplorerPanel";
 import EditorArea from "../components/EditorArea";
 import RightPanel from "../components/RightPanel";
 import StatusBar from "../components/StatusBar";
 import TerminalPanel from "../components/TerminalPanel";
+import WorkspaceTopbar from "@/features/workspace/components/WorkspaceTopbar";
 
 import {
   Panel,
@@ -23,7 +23,7 @@ export default function EditorLayout() {
     <div className="h-screen w-screen overflow-hidden bg-[--bg)] text-white flex flex-col">
 
       {/* TOPBAR */}
-      <TopBar />
+      <WorkspaceTopbar />
 
       {/* MAIN */}
       <div className="flex-1 overflow-hidden flex">

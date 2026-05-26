@@ -5,8 +5,10 @@ import LoginPage from "@/pages/LoginPage"
 import SignupPage from "@/pages/SignupPage"
 import RoomPage from "@/pages/RoomPage"
 import Home from "@/pages/Home"
+import EditorPage from "@/pages/EditorPage"
 
 const AppRoutes = () => {
+
   return (
     <Routes>
         <Route path="/" element={<Home />} />
@@ -24,9 +26,16 @@ const AppRoutes = () => {
         <Route 
           path="/dashboard"
           element={
-            <ProtectedRoute>
+            
               <DashboardPage />
-            </ProtectedRoute>
+            
+          }
+        />
+
+        <Route
+          path="/editor/:projectId"
+          element={
+            <EditorPage />
           }
         />
 

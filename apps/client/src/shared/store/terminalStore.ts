@@ -1,4 +1,6 @@
+import { findFileById, useEditorStore } from "@/features/editor/editorStore";
 import { create } from "zustand";
+import { runCode } from "../services/runCode";
 
 type TerminalLine = {
   id: string;
@@ -44,10 +46,14 @@ type TerminalStore = {
   setIsRunning: (
     value: boolean
   ) => void;
+
+  runCurrentFile: () => Promise<void>;
 };
 
+
+
 export const useTerminalStore =
-  create<TerminalStore>((set) => ({
+  create<TerminalStore>((set,get) => ({
     lines: [
       {
         id: crypto.randomUUID(),
@@ -107,4 +113,71 @@ export const useTerminalStore =
       set({
         isRunning: value,
       }),
+
+      runCurrentFile:
+        async () => {
+
+          const editorStore =
+            useEditorStore.getState();
+
+          const activeFile =
+            findFileById(
+              editorStore.files,
+
+              editorStore.activeFileId
+            );
+
+          if (!activeFile)
+            return;
+
+          get().setIsRunning(
+            true
+          );
+
+          get().addLine({
+            id: crypto.randomUUID(),
+
+            type: "command",
+
+            text: `run ${activeFile.name}`,
+          });
+
+          try {
+
+            const result =
+              await runCode({
+                code:
+                  activeFile.content,
+
+                language:
+                  activeFile.language,
+              });
+
+            get().addLine({
+              id: crypto.randomUUID(),
+
+              type: "output",
+
+              text:
+                result.output,
+            });
+
+          } catch {
+
+            get().addLine({
+              id: crypto.randomUUID(),
+
+              type: "error",
+
+              text:
+                "Execution failed",
+            });
+
+          } finally {
+
+            get().setIsRunning(
+              false
+            );
+          }
+        },
   }));

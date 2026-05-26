@@ -1,10 +1,13 @@
 import { Files, Search, GitBranch, PlaySquare, Blocks, Settings } from "lucide-react";
-import { useState } from "react";
 
 import SettingsModal from "@/shared/components/SettingsModal";
+import { useWorkspaceStore } from "../store/workspaceStore";
 
 export default function ActivityBar() {
-  const [settingsOpen, setSettingsOpen] = useState(false);
+  const {
+  openSettings,
+  setOpenSettings,
+} = useWorkspaceStore();
   return (
     <div className="w-14 bg-[var(--sidebar)] border-r border-[#30363d] flex flex-col justify-between">
       <div className="flex flex-col py-3 gap-2">
@@ -72,7 +75,7 @@ export default function ActivityBar() {
       <div>
         <button
           onClick={() =>
-            setSettingsOpen(true)
+            setOpenSettings(true)
           }
           className="
             w-full h-12
@@ -88,9 +91,9 @@ export default function ActivityBar() {
       
 
       <SettingsModal
-        open={settingsOpen}
+        open={openSettings}
         onClose={() =>
-          setSettingsOpen(false)
+          setOpenSettings(false)
         }
       />
     </div>

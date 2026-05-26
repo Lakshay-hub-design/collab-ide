@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { useUIStore } from "../store/uiStore";
 
 import { useEditorStore } from "@/features/editor/editorStore";
+import { useWorkspaceStore } from "../store/workspaceStore";
 
 export function useKeyboardShortcuts() {
   const {
@@ -16,10 +17,17 @@ export function useKeyboardShortcuts() {
     closeTab,
   } = useEditorStore();
 
+  const { openSettings } =
+  useWorkspaceStore();
+
   useEffect(() => {
     function handleKeyDown(
       e: KeyboardEvent
     ) {
+      // disable shortcuts while modal open
+if (openSettings) {
+  return;
+}
       // CTRL/CMD + B
       if (
         (e.ctrlKey || e.metaKey) &&
@@ -43,7 +51,7 @@ export function useKeyboardShortcuts() {
       // CTRL/CMD + P
       if (
         (e.ctrlKey || e.metaKey) &&
-        e.key.toLowerCase() === "p"
+        e.key.toLowerCase() === "k"
       ) {
         e.preventDefault();
 

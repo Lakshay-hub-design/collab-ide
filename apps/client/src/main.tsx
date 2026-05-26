@@ -1,7 +1,6 @@
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import { BrowserRouter } from 'react-router-dom'
-import AppRoutes from './app/routes/AppRoutes.tsx'
 import AppProvider from './app/providers/AppProvider.tsx'
 import App from './App.tsx'
 import "./styles/scrollbar.css";

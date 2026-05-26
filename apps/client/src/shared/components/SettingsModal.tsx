@@ -1,6 +1,7 @@
 import { X } from "lucide-react";
 
 import { useSettingsStore } from "../store/settingsStore";
+import { useUIStore } from "../store/uiStore";
 
 type Props = {
   open: boolean;
@@ -24,6 +25,7 @@ export default function SettingsModal({
     toggleMinimap,
     toggleWordWrap,
   } = useSettingsStore();
+
 
   if (!open) return null;
 

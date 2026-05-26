@@ -214,15 +214,6 @@ export default function ExplorerPanel() {
         <FileTree items={files} />
       </div>
 
-      {/* RECENT PROJECTS */}
-      <div
-        className="
-          border-t border-[var(--border)]
-          mt-4 pt-4
-        "
-      >
-        <RecentProjects />
-      </div>
 
     </div>
   );

@@ -13,7 +13,7 @@ type UIStore = {
 
   openCommandPalette: () => void;
 
-  closeCommandPalette: () => void;
+  closeCommandPalette: () => void;  
 };
 
 export const useUIStore =
