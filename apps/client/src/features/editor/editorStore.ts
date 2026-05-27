@@ -11,11 +11,49 @@ import { useProjectStore } from "../files/store/projectStore";
 
 import { EDITOR_STORAGE_KEYS } from "@/shared/constants/editorStorage";
 
+import { saveProjectSession } from "@/shared/utils/projectSession";
+import { useExplorerStore } from "@/features/files/store/explorerStore";
+
 const activeProject = useProjectStore
   .getState()
   .projects.find(
     (project) => project.id === useProjectStore.getState().activeProjectId,
   );
+
+function persistEditorSession(
+  state: {
+    openTabs: string[];
+
+    activeFileId: string;
+  }
+) {
+
+  const projectStore =
+    useProjectStore.getState();
+
+  const projectId =
+    projectStore.activeProjectId;
+
+  if (!projectId) return;
+
+  const explorerStore =
+    useExplorerStore.getState();
+
+  saveProjectSession(
+    projectId,
+
+    {
+      openTabs:
+        state.openTabs,
+
+      activeFileId:
+        state.activeFileId,
+
+      openFolders:
+        explorerStore.openFolders,
+    }
+  );
+}
 
 type EditorStore = {
   files: FileSystemItem[];
@@ -78,11 +116,9 @@ function findFileById(items: FileSystemItem[], id: string): FileType | null {
 export const useEditorStore = create<EditorStore>((set, get) => ({
   files: activeProject?.files || [],
 
-  activeFileId: localStorage.getItem(EDITOR_STORAGE_KEYS.ACTIVE_FILE) || "1",
+  activeFileId: "",
 
-  openTabs: JSON.parse(
-    localStorage.getItem(EDITOR_STORAGE_KEYS.OPEN_TABS) || '["1"]',
-  ),
+  openTabs: [],
 
   setActiveFile: (id) => {
     const { openTabs } = get();
@@ -94,6 +130,17 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
     }
 
     set({
+      activeFileId: id,
+    });
+
+    persistEditorSession({
+      openTabs: [
+        ...new Set([
+          ...openTabs,
+          id,
+        ]),
+      ],
+
       activeFileId: id,
     });
 
@@ -152,100 +199,76 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
       openTabs: updatedTabs,
       activeFileId: nextActive,
     });
+    persistEditorSession({
+      openTabs: updatedTabs,
+
+      activeFileId:
+        nextActive,
+    });
   },
 
-  createFile: (
-  folderId,
-  fileName
-) => {
+  createFile: (folderId, fileName) => {
+    const extension = fileName.split(".").pop();
 
-  const extension =
-    fileName.split(".").pop();
+    const languageMap: Record<string, string> = {
+      ts: "typescript",
+      tsx: "typescript",
+      js: "javascript",
+      jsx: "javascript",
+      css: "css",
+      html: "html",
+      json: "json",
+    };
 
-  const languageMap: Record<
-    string,
-    string
-  > = {
-    ts: "typescript",
-    tsx: "typescript",
-    js: "javascript",
-    jsx: "javascript",
-    css: "css",
-    html: "html",
-    json: "json",
-  };
+    const newFile: FileType = {
+      id: crypto.randomUUID(),
 
-  const newFile: FileType = {
-    id: crypto.randomUUID(),
+      type: "file",
 
-    type: "file",
+      name: fileName,
 
-    name: fileName,
+      language: languageMap[extension || ""] || "plaintext",
 
-    language:
-      languageMap[
-        extension || ""
-      ] || "plaintext",
+      content: "",
+    };
 
-    content: "",
-  };
+    function addFile(items: FileSystemItem[]): FileSystemItem[] {
+      // ROOT LEVEL
+      if (folderId === null) {
+        return [...items, newFile];
+      }
 
-  function addFile(
-    items: FileSystemItem[]
-  ): FileSystemItem[] {
+      return items.map((item) => {
+        if (isFolder(item) && item.id === folderId) {
+          return {
+            ...item,
 
-    // ROOT LEVEL
-    if (folderId === null) {
-      return [
-        ...items,
-        newFile,
-      ];
+            children: [...item.children, newFile],
+          };
+        }
+
+        if (isFolder(item)) {
+          return {
+            ...item,
+
+            children: addFile(item.children),
+          };
+        }
+
+        return item;
+      });
     }
 
-    return items.map((item) => {
+    set((state) => {
+      const updatedFiles = addFile(state.files);
 
-      if (
-        isFolder(item) &&
-        item.id === folderId
-      ) {
-        return {
-          ...item,
+      persistProject(updatedFiles);
 
-          children: [
-            ...item.children,
-            newFile,
-          ],
-        };
-      }
-
-      if (isFolder(item)) {
-        return {
-          ...item,
-
-          children: addFile(
-            item.children
-          ),
-        };
-      }
-
-      return item;
+      return {
+        files: updatedFiles,
+      };
     });
-  }
-
-  set((state) => {
-
-    const updatedFiles =
-      addFile(state.files);
-
-    persistProject(
-      updatedFiles
-    );
-
-    return {
-      files: updatedFiles,
-    };
-  });
-},
+  },
 
   deleteFile: (id) => {
     function remove(items: FileSystemItem[]): FileSystemItem[] {
@@ -359,14 +382,34 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
     });
   },
 
-  loadProjectFiles: (files) =>
+  loadProjectFiles: (files) => {
+    // find first file automatically
+    function findFirstFile(items: FileSystemItem[]): FileType | null {
+      for (const item of items) {
+        if (isFile(item)) {
+          return item;
+        }
+
+        if (isFolder(item)) {
+          const found = findFirstFile(item.children);
+
+          if (found) return found;
+        }
+      }
+
+      return null;
+    }
+
+    const firstFile = findFirstFile(files);
+
     set({
       files,
 
-      openTabs: [],
+      openTabs: firstFile ? [firstFile.id] : [],
 
-      activeFileId: "",
-    }),
+      activeFileId: firstFile?.id || "",
+    });
+  },
 }));
 
 export { findFileById };

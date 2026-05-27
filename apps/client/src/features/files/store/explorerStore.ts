@@ -1,5 +1,14 @@
 import { create } from "zustand";
 
+import {
+  saveProjectSession,
+  loadProjectSession,
+} from "@/shared/utils/projectSession";
+
+import { useProjectStore } from "../store/projectStore";
+
+import { useEditorStore } from "@/features/editor/editorStore";
+
 type CreateState = {
   parentId: string | null;
 
@@ -38,6 +47,8 @@ type ExplorerStore = {
   setNewItemName: (value: string) => void;
 
   setContextMenu: (value: ContextMenuState | null) => void;
+
+  resetExplorer: () => void;
 };
 
 const savedOpenFolders = JSON.parse(
@@ -62,6 +73,31 @@ export const useExplorerStore = create<ExplorerStore>((set) => ({
       const updated = state.openFolders.includes(id)
         ? state.openFolders.filter((folderId) => folderId !== id)
         : [...state.openFolders, id];
+
+        const projectId =
+  useProjectStore.getState()
+    .activeProjectId;
+
+if (projectId) {
+
+  const editorState =
+    useEditorStore.getState();
+
+  saveProjectSession(
+    projectId,
+
+    {
+      openFolders:
+        updated,
+
+      openTabs:
+        editorState.openTabs,
+
+      activeFileId:
+        editorState.activeFileId,
+    }
+  );
+}
 
       localStorage.setItem("open-folders", JSON.stringify(updated));
 
@@ -96,4 +132,19 @@ export const useExplorerStore = create<ExplorerStore>((set) => ({
     set({
       contextMenu: value,
     }),
+
+    resetExplorer: () =>
+      set({
+        openFolders: [],
+
+        renamingId: null,
+
+        renameValue: "",
+
+        creating: null,
+
+        newItemName: "",
+
+        contextMenu: null,
+      }),
 }));

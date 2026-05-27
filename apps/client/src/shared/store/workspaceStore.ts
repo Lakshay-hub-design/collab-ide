@@ -1,5 +1,11 @@
 import { create } from "zustand";
 
+export type RightPanelType =
+  | "ai"
+  | "collab"
+  | "chat"
+  | null;
+
 type WorkspaceStore = {
 
   openSettings: boolean;
@@ -7,13 +13,20 @@ type WorkspaceStore = {
   setOpenSettings: (
     value: boolean
   ) => void;
+
+  activeRightPanel : RightPanelType
+
+  setActiveRightPanel : (panel: RightPanelType) => void
 };
+
+
 
 export const useWorkspaceStore =
   create<WorkspaceStore>(
     (set) => ({
 
       openSettings: false,
+      activeRightPanel: 'ai',
 
       setOpenSettings: (
         value
@@ -21,5 +34,9 @@ export const useWorkspaceStore =
         set({
           openSettings: value,
         }),
-    })
+
+      setActiveRightPanel: (activeRightPanel) => set({
+        activeRightPanel
+      })
+    })    
   );

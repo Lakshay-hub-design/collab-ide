@@ -10,9 +10,7 @@ import {
 import { useNavigate } from "react-router-dom";
 
 import { useProjectStore } from "@/features/files/store/projectStore";
-import { findFileById, useEditorStore } from "@/features/editor/editorStore";
 import { useTerminalStore } from "@/shared/store/terminalStore";
-import { runCode } from "@/shared/services/runCode";
 import { useUIStore } from "@/shared/store/uiStore";
 
 export default function WorkspaceTopbar() {
@@ -28,7 +26,6 @@ export default function WorkspaceTopbar() {
     isRunning,
     runCurrentFile
 } = useTerminalStore();
-
 
 
   const {
@@ -206,22 +203,6 @@ export default function WorkspaceTopbar() {
           <Share2 size={16} />
 
           Share
-        </button>
-
-        {/* COLLAB */}
-        <button
-          className="
-            h-10 px-4 rounded-xl
-            bg-gradient-to-r
-            from-violet-500
-            to-purple-600
-            text-white
-            flex items-center gap-2
-          "
-        >
-          <Users size={16} />
-
-          Collaborate
         </button>
 
         {/* AVATAR */}

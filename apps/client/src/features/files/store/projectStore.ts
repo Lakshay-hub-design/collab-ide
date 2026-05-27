@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-import type { ProjectType } from "../types/project.types";
+import type { ProjectTemplate, ProjectType, ProjectVisibility } from "../types/project.types";
 
 import { defaultProject } from "../data/defaultProject";
 
@@ -10,6 +10,7 @@ import {
   saveActiveProjectId,
   getActiveProjectId,
 } from "@/shared/utils/projectStorage";
+import { getTemplateFiles } from "../utils/projectTemplates";
 
 type ProjectStore = {
   projects: ProjectType[];
@@ -20,7 +21,13 @@ type ProjectStore = {
 
   saveProject: (updatedProject: ProjectType) => void;
 
-  createProject: (name: string) => void;
+  createProject: (
+  name: string,
+
+    template?: ProjectTemplate,
+
+    visibility?: ProjectVisibility
+  ) => void;
 
   deleteProject: (id: string) => void;
 };
@@ -59,29 +66,50 @@ export const useProjectStore = create<ProjectStore>((set) => ({
     });
   },
 
-  createProject: (name) => {
-    const newProject: ProjectType = {
-      id: crypto.randomUUID(),
+  createProject: (
+  name,
+  template = "blank",
+  visibility = "private"
+) => {
 
-      name,
+  const project = {
+    id: crypto.randomUUID(),
 
-      files: [],
+    name,
 
-      createdAt: Date.now(),
+    template,
 
-      updatedAt: Date.now(),
+    visibility,
+
+    files:
+      getTemplateFiles(
+        template
+      ),
+
+    createdAt:
+      Date.now(),
+
+    updatedAt:
+      Date.now(),
+  };
+
+  set((state) => {
+
+    const updated = [
+      project,
+      ...state.projects,
+    ];
+
+    saveProjects(updated);
+
+    return {
+      projects: updated,
+
+      activeProjectId:
+        project.id,
     };
-
-    set((state) => {
-      const updatedProjects = [newProject, ...state.projects];
-
-      saveProjects(updatedProjects);
-
-      return {
-        projects: updatedProjects,
-      };
-    });
-  },
+  });
+},
 
   deleteProject: (id) => {
     set((state) => {
