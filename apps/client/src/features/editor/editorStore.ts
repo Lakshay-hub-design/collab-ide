@@ -20,38 +20,29 @@ const activeProject = useProjectStore
     (project) => project.id === useProjectStore.getState().activeProjectId,
   );
 
-function persistEditorSession(
-  state: {
-    openTabs: string[];
+function persistEditorSession(state: {
+  openTabs: string[];
 
-    activeFileId: string;
-  }
-) {
+  activeFileId: string;
+}) {
+  const projectStore = useProjectStore.getState();
 
-  const projectStore =
-    useProjectStore.getState();
-
-  const projectId =
-    projectStore.activeProjectId;
+  const projectId = projectStore.activeProjectId;
 
   if (!projectId) return;
 
-  const explorerStore =
-    useExplorerStore.getState();
+  const explorerStore = useExplorerStore.getState();
 
   saveProjectSession(
     projectId,
 
     {
-      openTabs:
-        state.openTabs,
+      openTabs: state.openTabs,
 
-      activeFileId:
-        state.activeFileId,
+      activeFileId: state.activeFileId,
 
-      openFolders:
-        explorerStore.openFolders,
-    }
+      openFolders: explorerStore.openFolders,
+    },
   );
 }
 
@@ -77,6 +68,8 @@ type EditorStore = {
   deleteFile: (id: string) => void;
 
   loadProjectFiles: (files: FileSystemItem[]) => void;
+
+  updateFileContentRemote: (id: string, content: string) => void;
 };
 
 function persistProject(files: FileSystemItem[]) {
@@ -134,12 +127,7 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
     });
 
     persistEditorSession({
-      openTabs: [
-        ...new Set([
-          ...openTabs,
-          id,
-        ]),
-      ],
+      openTabs: [...new Set([...openTabs, id])],
 
       activeFileId: id,
     });
@@ -202,8 +190,7 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
     persistEditorSession({
       openTabs: updatedTabs,
 
-      activeFileId:
-        nextActive,
+      activeFileId: nextActive,
     });
   },
 
@@ -409,6 +396,32 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
 
       activeFileId: firstFile?.id || "",
     });
+  },
+  updateFileContentRemote: (id, content) => {
+    function update(items: FileSystemItem[]): FileSystemItem[] {
+      return items.map((item) => {
+        if (isFile(item) && item.id === id) {
+          return {
+            ...item,
+            content,
+          };
+        }
+
+        if (isFolder(item)) {
+          return {
+            ...item,
+
+            children: update(item.children),
+          };
+        }
+
+        return item;
+      });
+    }
+
+    set((state) => ({
+      files: update(state.files),
+    }));
   },
 }));
 

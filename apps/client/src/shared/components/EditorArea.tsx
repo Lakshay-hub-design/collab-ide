@@ -1,4 +1,5 @@
 import Editor from "@monaco-editor/react";
+import { socket } from "@/shared/lib/socket";
 
 import { X } from "lucide-react";
 
@@ -8,6 +9,7 @@ import {
 } from "@/features/editor/editorStore";
 
 import { useSettingsStore } from "@/shared/store/settingsStore";
+import { useCollabStore } from "@/features/collaboration/collabStore";
 
 export default function EditorArea() {
   const {
@@ -36,7 +38,8 @@ export default function EditorArea() {
   const openedFiles = openTabs
     .map((id) => findFileById(files, id))
     .filter(Boolean);
-
+const { roomId } =
+  useCollabStore();
   return (
     <div className="flex-1 h-full flex flex-col bg-[var(--sidebar)] overflow-hidden">
 
@@ -102,12 +105,31 @@ export default function EditorArea() {
             }}
             language={activeFile.language}
             value={activeFile.content}
-            onChange={(value) =>
-              updateFileContent(
-                activeFile.id,
-                value || ""
-              )
-            }
+            onChange={(value) => {
+
+  const content =
+    value || "";
+
+  updateFileContent(
+    activeFile.id,
+    content
+  );
+
+  if (roomId) {
+
+    socket.emit(
+      "file:change",
+      {
+        roomId,
+
+        fileId:
+          activeFile.id,
+
+        content,
+      }
+    );
+  }
+}}
             options={{
               fontSize: fontSize,
 

@@ -12,10 +12,12 @@ import { useProjectStore } from "@/features/files/store/projectStore";
 import { useEditorStore } from "@/features/editor/editorStore";
 
 import { useExplorerStore } from "@/features/files/store/explorerStore";
-import {
-  loadProjectSession,
-} from "@/shared/utils/projectSession";
+import { loadProjectSession } from "@/shared/utils/projectSession";
+import { useCollaboration } from "@/features/collaboration/hooks/useCollaboration";
+
 export default function EditorPage() {
+
+  useCollaboration()
 
   const { projectId } =
     useParams();
